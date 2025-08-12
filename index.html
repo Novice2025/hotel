@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Vocabulary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for the Netflix-like background and Burger King-like font */
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #e5e5e5;
+            background-color: #141414; /* Netflix dark background */
+            background-image: radial-gradient(at 10% 20%, rgba(255, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 60%),
+                              radial-gradient(at 90% 80%, rgba(229, 9, 20, 0.2) 0%, rgba(0, 0, 0, 0.4) 60%);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .burger-king-font {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            text-shadow: 
+                -2px -2px 0 #D35400,  /* Orange top-left shadow */
+                2px 2px 0 #F1C40F,    /* Yellow bottom-right shadow */
+                4px 4px 0 rgba(0, 0, 0, 0.2); /* Soft drop shadow */
+            letter-spacing: 0.1em;
+            color: #fff;
+            -webkit-text-stroke: 1px #fff;
+            text-stroke: 1px #fff;
+        }
+
+        .card {
+            min-height: 400px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            position: relative; /* Needed for positioning the pronounce button */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        
+        .card:hover {
+          transform: scale(1.05); /* The new hover effect */
+          box-shadow: 0 10px 20px rgba(229, 9, 20, 0.5), 0 6px 6px rgba(0, 0, 0, 0.23);
+        }
+
+        .card-front, .card-back {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-back {
+            background: rgba(229, 9, 20, 0.8);
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0; /* Initially hidden */
+            pointer-events: none; /* Prevents clicks on the hidden element */
+            text-align: left;
+            padding: 2rem;
+            border-radius: 1.5rem; /* Match the card's border-radius */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        
+        .card.is-active .card-front {
+            opacity: 0; /* Hide front content */
+        }
+        
+        .card.is-active .card-back {
+            opacity: 1; /* Show back content */
+            pointer-events: auto; /* Enable clicks */
+        }
+        
+        .pronounce-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(229, 9, 20, 0.9);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 10;
+        }
+
+        .pronounce-btn:hover {
+            background-color: #ff3344;
+            transform: scale(1.1);
+        }
+
+        .card-back p {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+        
+        .card-front img {
+            width: 80%; /* Makes image fit well */
+            height: auto;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .category-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #E50914; /* Netflix red */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        /* Loading spinner */
+        .spinner {
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          border-top: 4px solid #E50914;
+          width: 24px;
+          height: 24px;
+          -webkit-animation: spin 1s linear infinite;
+          animation: spin 1s linear infinite;
+        }
+        @-webkit-keyframes spin {
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* Styles for the drag and drop exercises */
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed #E50914;
+        }
+        .drag-item {
+            cursor: grab;
+            background-color: #2c2c2c;
+            border: 1px solid #E50914;
+        }
+        .drag-item.correct {
+            background-color: #1a531a; /* Dark green */
+            border-color: #228b22; /* Forest green */
+        }
+        .drag-item.incorrect {
+            background-color: #661a1a; /* Dark red */
+            border-color: #a52a2a; /* Brown */
+        }
+    </style>
+</head>
+<body class="font-inter">
+
+    <div class="container mx-auto p-8">
+        <!-- Title Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-5xl md:text-7xl font-bold burger-king-font tracking-wide">
+                HOTEL LINGO
+            </h1>
+            <p class="text-xl md:text-2xl mt-4 font-semibold text-gray-200">
+                Essential Vocabulary & Phrases for Your Stay
+            </p>
+            <div class="mt-8 flex justify-center">
+                <input type="text" id="search-bar" placeholder="Search terms..." class="w-full max-w-lg p-3 rounded-full bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+            </div>
+        </header>
+
+        <!-- Vocabulary Cards Grid -->
+        <main id="vocabulary-grid">
+            <!-- Cards will be dynamically inserted here by JavaScript -->
+        </main>
+
+        <!-- Conversation Section -->
+        <section class="mt-20 bg-gray-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="category-title">Sample Conversation</h2>
+            <div class="text-white text-lg leading-relaxed space-y-4">
+                <p><strong>Receptionist:</strong>—Good afternoon, San Felice Hotel. May I help you?</p>
+                <p><strong>Mrs Ryefield:</strong>—Yes. I'd like to book a room, please.</p>
+                <p><strong>Receptionist:</strong>—Certainly. When for, madam?</p>
+                <p><strong>Mrs Ryefield:</strong>—March the 23rd.</p>
+                <p><strong>Receptionist:</strong>—How long will you be staying?</p>
+                <p><strong>Mrs Ryefield:</strong>—Three nights.</p>
+                <p><strong>Receptionist:</strong>—What kind of room would you like, madam?</p>
+                <p><strong>Mrs Ryefield:</strong>—Er... double with bath. I'd appreciate it if you could give me a room with a view over the lake.</p>
+                <p><strong>Receptionist:</strong>—Certainly, madam. I'll just check what we have available. . . Yes, we have a room on the 4th floor with a really splendid view.</p>
+                <p><strong>Mrs Ryefield:</strong>—Fine. How much is the charge per night?</p>
+                <p><strong>Receptionist:</strong>—Would you like breakfast?</p>
+                <p><strong>Mrs Ryefield:</strong>—No, thanks.</p>
+                <p><strong>Receptionist:</strong>—It's eighty four euro per night excluding VAT.</p>
+                <p><strong>Mrs Ryefield:</strong>—That's fine.</p>
+                <p><strong>Receptionist:</strong>—Who's the booking for, please, madam?</p>
+                <p><strong>Mrs Ryefield:</strong>—Mr and Mrs Ryefield, that's R-Y-E-F-I-E-L-D.</p>
+                <p><strong>Receptionist:</strong>—Okay, let me make sure I got that: Mr and Mrs Ryefield. Double with bath for March the 23rd, 24th and 25th. Is that correct?</p>
+                <p><strong>Mrs Ryefield:</strong>—Yes it is. Thank you.</p>
+                <p><strong>Receptionist:</strong>—Let me give you your confirmation number. It's: 7576385. I'll repeat that: 7576385. Thank you for choosing San Felice Hotel and have a nice day. Goodbye.</p>
+                <p><strong>Mrs Ryefield:</strong>—Goodbye.</p>
+            </div>
+        </section>
+
+        <!-- New Section for Reporting Common Issues -->
+        <section class="mt-20 bg-gray-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="category-title">Reporting Common Issues</h2>
+            <div class="text-white text-lg leading-relaxed space-y-4">
+                <p><strong>Dirty linen/sheets:</strong> "The sheets on my bed are dirty." or "The linen in my room hasn't been changed."</p>
+                <p><strong>No water from the tap:</strong> "There's no water coming from the tap in my bathroom." or "The water supply seems to be out of order in my room."</p>
+                <p><strong>Strange smell:</strong> "I've noticed a strange smell in my room." or "There's a strong, unusual odor coming from the ventilation."</p>
+                <p><strong>Noise from next door:</strong> "There is a lot of noise coming from the room next door." or "I'm being disturbed by a loud noise from the adjacent room."</p>
+                <p><strong>TV not switching on:</strong> "The television in my room is out of order." or "The TV is not working; it won't switch on."</p>
+                <p><strong>Lost key card:</strong> "I seem to have lost my key card." or "I've misplaced my room key and need a new one."</p>
+            </div>
+        </section>
+
+        <!-- Previous section for requests -->
+        <section class="mt-20 bg-gray-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="category-title">Useful Phrases for Requests</h2>
+            <div class="text-white text-lg leading-relaxed space-y-4">
+                <p><strong>For an iron:</strong> "Would I please get an iron and an ironing board sent to my room?"</p>
+                <p><strong>For a remote control:</strong> "We're missing the remote control for the TV. Would you send one up to the room?" or "Is it possible to get a remote control for the air conditioner?"</p>
+                <p><strong>For a remote control battery:</strong> "The remote control battery seems to be dead. Would someone please bring a new one to my room?"</p>
+                <p><strong>For a large towel:</strong> "Would it be possible to get an extra large towel for my room?"</p>
+                <p><strong>For a water leak:</strong> "There appears to be a water leak from the roof in my room. Would someone come and take a look at it?"</p>
+                <p><strong>For a city map:</strong> "Would you have a city map available at the front desk?"</p>
+            </div>
+        </section>
+
+        <!-- Interactive Exercises Section -->
+        <section class="mt-20">
+            <h2 class="category-title">Interactive Exercises</h2>
+            <p class="text-center text-lg text-gray-300 mb-8">Test your knowledge with these fun games!</p>
+
+            <!-- Drag and Drop Matching Game -->
+            <div id="drag-drop-game" class="bg-gray-800 p-6 rounded-2xl shadow-xl mb-12">
+                <h3 class="text-2xl font-bold text-white mb-4">Exercise 1: Drag & Drop</h3>
+                <p class="text-gray-400 mb-6">Match the term on the left with its correct definition on the right.</p>
+                <div class="flex flex-col lg:flex-row justify-between items-stretch gap-8">
+                    <!-- Terms to drag -->
+                    <div id="drag-items-container" class="flex-1 flex flex-col items-center gap-4">
+                        <!-- Draggable terms will be inserted here -->
+                    </div>
+                    <!-- Drop zones for definitions -->
+                    <div id="drop-zones-container" class="flex-1 flex flex-col items-center gap-4">
+                        <!-- Drop zones will be inserted here -->
+                    </div>
+                </div>
+                <div class="flex justify-center mt-8 space-x-4">
+                    <button id="check-drag-drop" class="px-6 py-3 rounded-full bg-red-600 text-white font-bold hover:bg-red-700 transition">Check Answers</button>
+                    <button id="reset-drag-drop" class="px-6 py-3 rounded-full bg-gray-600 text-white font-bold hover:bg-gray-700 transition">Reset</button>
+                </div>
+            </div>
+
+            <!-- Fill-in-the-Blank Exercise -->
+            <div id="fill-in-the-blank" class="bg-gray-800 p-6 rounded-2xl shadow-xl">
+                <h3 class="text-2xl font-bold text-white mb-4">Exercise 2: Fill in the Blank</h3>
+                <p class="text-gray-400 mb-6">Complete the sentences by selecting the correct word.</p>
+                <div id="fill-in-container" class="space-y-6">
+                    <!-- Sentences will be inserted here by JavaScript -->
+                </div>
+                <div class="flex justify-center mt-8 space-x-4">
+                    <button id="check-fill-in" class="px-6 py-3 rounded-full bg-red-600 text-white font-bold hover:bg-red-700 transition">Check Answers</button>
+                    <button id="reset-fill-in" class="px-6 py-3 rounded-full bg-gray-600 text-white font-bold hover:bg-gray-700 transition">Reset</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Data for the vocabulary cards, including image URLs and categories
+            const vocabularyData = [
+                // Booking & Check-in
+                {
+                    category: "Booking & Check-in",
+                    term: "Check-in 📅",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Check-in",
+                    definition: "The process of arriving at a hotel, registering, and getting your room key.",
+                    example: "I'd like to check in, please. I have a reservation under the name John Doe."
+                },
+                {
+                    category: "Booking & Check-in",
+                    term: "Reservation ✍️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Reservation",
+                    definition: "A booking or an arrangement to have a room held for you.",
+                    example: "I have a reservation for a double room for three nights."
+                },
+                {
+                    category: "Booking & Check-in",
+                    term: "No-Show 🚫",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=No-Show",
+                    definition: "Failing to arrive for a reservation without canceling; often results in a fee.",
+                    example: "We had to charge the full rate for the no-show."
+                },
+                // Guest Information
+                {
+                    category: "Guest Information",
+                    term: "ID card / Passport 🆔",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=ID%20Card",
+                    definition: "A document used to prove a person's identity and citizenship.",
+                    example: "An ID card or passport must be shown by all customers upon arrival."
+                },
+                {
+                    category: "Guest Information",
+                    term: "Allergies ⚠️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Allergies",
+                    definition: "A damaging immune response by the body to a substance, especially a particular food, pollen, fur, or dust.",
+                    example: "All allergies and dietary restrictions must be communicated to the property prior to arrival."
+                },
+                // Room Types
+                {
+                    category: "Room Types",
+                    term: "Single Room 🛏️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Single%20Room",
+                    definition: "A room with one single bed, suitable for one person.",
+                    example: "I booked a single room for my solo business trip."
+                },
+                {
+                    category: "Room Types",
+                    term: "Double Room 🛌",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Double%20Room",
+                    definition: "A room with one double bed, suitable for two people.",
+                    example: "The double room was perfect for my partner and me."
+                },
+                {
+                    category: "Room Types",
+                    term: "Twin Room 👭",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Twin%20Room",
+                    definition: "A room with two single beds, suitable for two people.",
+                    example: "My friend and I shared a twin room for the weekend."
+                },
+                {
+                    category: "Room Types",
+                    term: "Suite 🛋️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Suite",
+                    definition: "A luxurious room that often includes a separate living space and additional amenities.",
+                    example: "We upgraded to a suite for our honeymoon."
+                },
+                {
+                    category: "Room Types",
+                    term: "Connecting Rooms 🔗",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Connecting%20Rooms",
+                    definition: "Two hotel rooms with a connecting door, suitable for families or groups.",
+                    example: "The family booked connecting rooms so the kids could be close by."
+                },
+                {
+                    category: "Room Types",
+                    term: "Family Room 👨‍👩‍👧‍👦",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Family%20Room",
+                    definition: "A larger, more spacious room designed specifically for families.",
+                    example: "The family room included a king bed and a pull-out sofa."
+                },
+                {
+                    category: "Room Types",
+                    term: "Accessible Room ♿",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Accessible%20Room",
+                    definition: "A room designed for disabled guests, with features like grab bars and wider doorways.",
+                    example: "We requested an accessible room with a roll-in shower."
+                },
+                {
+                    category: "Room Types",
+                    term: "Penthouse 🏙️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Penthouse",
+                    definition: "A luxurious apartment or suite, typically located on the top floor of the hotel.",
+                    example: "The penthouse offers a stunning panoramic view of the city."
+                },
+                {
+                    category: "Room Types",
+                    term: "Balcony Room ☀️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Balcony%20Room",
+                    definition: "A room that includes an outdoor balcony for additional space and views.",
+                    example: "I love to stay in a balcony room to enjoy the fresh air."
+                },
+                {
+                    category: "Room Types",
+                    term: "Ocean View Room 🌊",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Ocean%20View",
+                    definition: "A room with a window or balcony that overlooks the ocean, often at a premium price.",
+                    example: "Our ocean view room had a magnificent sunset view."
+                },
+                {
+                    category: "Room Types",
+                    term: "Smoking Room 🚬",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Smoking%20Room",
+                    definition: "A designated room where smoking is allowed.",
+                    example: "He had to ask for a smoking room since he didn't want to go outside."
+                },
+                {
+                    category: "Room Types",
+                    term: "Non-Smoking Room 🚭",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Non-Smoking%20Room",
+                    definition: "A room where smoking is strictly prohibited; very common in many hotels.",
+                    example: "The non-smoking room felt fresh and clean."
+                },
+                {
+                    category: "Room Types",
+                    term: "Adjoining Rooms ➡️",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Adjoining%20Rooms",
+                    definition: "Two rooms that are next to each other but do not have a connecting door between them.",
+                    example: "My kids were in the adjoining room next to ours, so we were close but still had privacy."
+                },
+                {
+                    category: "Room Types",
+                    term: "Rollaway Bed / Cot 🛏️",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Rollaway%20Bed",
+                    definition: "An extra bed, often on wheels, that can be added to a room for an additional guest.",
+                    example: "We requested a rollaway bed for our third guest."
+                },
+                // Services and Amenities
+                {
+                    category: "Services and Amenities",
+                    term: "Concierge 🗺️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Concierge",
+                    definition: "Hotel staff that assists guests with various tasks, such as booking tours, making reservations, or providing local information.",
+                    example: "The concierge recommended a great local restaurant for dinner."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Wi-Fi 📶",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Wi-Fi",
+                    definition: "Wireless internet connection; usually provided for free or at a cost.",
+                    example: "The hotel offers free Wi-Fi for all guests."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Room Service 🍔",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Room%20Service",
+                    definition: "Meals or other services delivered to the room; available at specific hours.",
+                    example: "I ordered a burger from room service after a long day of travel."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Laundry 🧺",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Laundry",
+                    definition: "A service for washing, drying, and ironing of clothes; usually for an additional fee.",
+                    example: "I'd like to use the laundry service for my clothes."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Bellman 🔔",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Bellman",
+                    definition: "A staff member who helps with the luggage; offers assistance upon arrival or departure.",
+                    example: "The bellman brought my bags up to my room."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Shuttle Service 🚌",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Shuttle%20Service",
+                    definition: "Transportation provided by the hotel; usually to nearby attractions or the airport.",
+                    example: "The hotel offers a complimentary shuttle service to the airport."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Spa 💆",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Spa",
+                    definition: "A facility offering health and beauty treatments; includes massages, facials, etc.",
+                    example: "We booked a relaxing massage at the hotel's spa."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Gym / Fitness Center 🏋️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Gym",
+                    definition: "An area with exercise equipment; available for guests.",
+                    example: "I started my day with a workout at the hotel's fitness center."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Valet Parking 🚗",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Valet%20Parking",
+                    definition: "A service where staff park and retrieve your car; usually for a fee.",
+                    example: "I used the valet parking service so I didn't have to look for a spot."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Lost and Found 🔍",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Lost%20and%20Found",
+                    definition: "A place where lost items are kept; can be inquired about at the front desk.",
+                    example: "I checked with lost and found to see if anyone had turned in my wallet."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Business Center 💼",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Business%20Center",
+                    definition: "A place with computers, printers, and other office facilities; for guest use.",
+                    example: "I needed to print a document, so I went to the business center."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Towel Exchange ♻️",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Towel%20Exchange",
+                    definition: "A service that allows guests to get fresh towels from a designated area, often without a full housekeeping service.",
+                    example: "You can find the towel exchange station by the pool."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Safe Deposit Box 🔐",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Safe%20Deposit%20Box",
+                    definition: "A secure, lockable box for storing valuables, often available at the front desk.",
+                    example: "I left my passport and other important documents in the safe deposit box."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Currency Exchange 💵",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Currency%20Exchange",
+                    definition: "A service offered by the hotel to convert one currency into another.",
+                    example: "The hotel offers currency exchange services for our international guests."
+                },
+                {
+                    category: "Services and Amenities",
+                    term: "Pet-friendly 🐾",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Pet-friendly",
+                    definition: "A hotel policy that allows guests to bring their pets for a stay, sometimes with an extra fee.",
+                    example: "This is a pet-friendly hotel, so you're welcome to bring your dog."
+                },
+                // Other existing categories
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "Late Check-out ⏰",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Late%20Check-out",
+                    definition: "Staying in the room past the standard check-out time (often at an extra cost).",
+                    example: "I requested a late check-out for 2:00 PM."
+                },
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "Full Board 🍽️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Full%20Board",
+                    definition: "A rate that includes accommodation and all meals (breakfast, lunch, and dinner).",
+                    example: "We booked a full board package, so all our meals are included."
+                },
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "Do Not Disturb 🤫",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Do%20Not%20Disturb",
+                    definition: "A request for hotel staff not to enter the room, usually indicated by a sign on the door.",
+                    example: "I hung the 'Do Not Disturb' sign on my door so I wouldn't be interrupted."
+                },
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "Hold the line 📞",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Hold%20the%20line",
+                    definition: "A request for someone to wait on the telephone.",
+                    example: "Could you hold on the line, please? The manager will be with you in a moment."
+                },
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "In cash 💰",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=In%20cash",
+                    definition: "Paying with physical money (bills and coins) rather than a card.",
+                    example: "You can pay in cash, if you prefer."
+                },
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "Deposit 💰",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Deposit",
+                    definition: "A sum of money paid as a first installment or as a security against possible damage.",
+                    example: "A deposit of one night's stay is required to confirm your reservation."
+                },
+                {
+                    category: "Hotel Policies & Phrases",
+                    term: "Incidental Charges 💳",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Incidental%20Charges",
+                    definition: "Extra expenses incurred during a stay, such as minibar items, laundry, or spa treatments.",
+                    example: "We'll apply a hold on your credit card to cover any incidental charges during your stay."
+                },
+                // Problem Solving
+                {
+                    category: "Problem Solving",
+                    term: "Complaint 🗣️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Complaint",
+                    definition: "A statement that something is unsatisfactory or unacceptable.",
+                    example: "I would like to make a complaint about the noisy room."
+                },
+                {
+                    category: "Problem Solving",
+                    term: "Figure out 🤔",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Figure%20out",
+                    definition: "To understand or find a solution to a problem.",
+                    example: "We are trying to figure out the cause of the problem."
+                },
+                // We'll keep the `Hotel Staff & Roles` and `Room Features & Terms` categories here but clean them up to remove duplicates.
+                {
+                    category: "Hotel Staff & Roles",
+                    term: "Porter / Doorman 🛎️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Porter",
+                    definition: "The person who welcomes you at the front door and helps carry luggage from the taxi to the reception.",
+                    example: "The porter welcomed me at the front door and took my luggage."
+                },
+                {
+                    category: "Hotel Staff & Roles",
+                    term: "Front Desk Attendant 🔑",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Front%20Desk",
+                    definition: "The workers at the hotel reception who give you your room key and handle check-in/check-out.",
+                    example: "I spoke to the front desk attendant to get my key card."
+                },
+                {
+                    category: "Hotel Staff & Roles",
+                    term: "Housekeeping 🧹",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Housekeeping",
+                    definition: "The department responsible for the cleanliness and maintenance of the hotel's rooms and public areas.",
+                    example: "Housekeeping will be in to clean your room later this morning."
+                },
+                // Room Features & Terms
+                {
+                    category: "Room Features & Terms",
+                    term: "Amenities ✨",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Amenities",
+                    definition: "Services or facilities provided by the hotel, such as a gym, pool, or complimentary breakfast.",
+                    example: "What amenities does the hotel offer? Is there a swimming pool?"
+                },
+                {
+                    category: "Room Features & Terms",
+                    term: "Ensuite 🛁",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Ensuite",
+                    definition: "A hotel room with a private bathroom attached directly to the room.",
+                    example: "We booked a standard room, but a fancier ensuite room was also available."
+                },
+                {
+                    category: "Room Features & Terms",
+                    term: "Out of Order 🔧",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Out%20of%20Order",
+                    definition: "Not working or not in a functional state.",
+                    example: "I'm sorry, the elevator is out of order right now."
+                },
+                {
+                    category: "Room Features & Terms",
+                    term: "Parking Lot 🅿️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Parking%20Lot",
+                    definition: "An area provided for guests to park their vehicles.",
+                    example: "The hotel has a large parking lot behind the main building."
+                },
+                {
+                    category: "Room Features & Terms",
+                    term: "Sea view 🌊",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Sea%20view",
+                    definition: "A room with a window or balcony that overlooks the ocean.",
+                    example: "Every room has a sea view."
+                },
+                {
+                    category: "Room Features & Terms",
+                    term: "Wake-up Call ⏰",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Wake-up%20Call",
+                    definition: "A service where a hotel employee calls your room at a specified time to wake you up.",
+                    example: "I requested a wake-up call for 6 AM tomorrow."
+                },
+                {
+                    category: "Room Features & Terms",
+                    term: "Lobby 🛋️",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Lobby",
+                    definition: "The large public area near the main entrance of the hotel.",
+                    example: "We waited for our friends in the hotel lobby."
+                },
+                // Food and Beverage
+                {
+                    category: "Food and Beverage",
+                    term: "Restaurant 🍽️",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Restaurant",
+                    definition: "An on-site dining option; serves meals at specific times.",
+                    example: "We had a lovely dinner at the hotel's main restaurant."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Bar 🥂",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Bar",
+                    definition: "A place to purchase alcoholic and non-alcoholic drinks; may also serve light snacks.",
+                    example: "We met up for a drink at the hotel's bar before dinner."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Buffet 🍳",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Buffet",
+                    definition: "A self-service meal option; a variety of foods displayed for selection.",
+                    example: "The breakfast buffet had everything from eggs to pastries."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Breakfast Included 🥐",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Breakfast%20Included",
+                    definition: "A booking rate where breakfast is provided with the room; usually a buffet or set menu.",
+                    example: "We chose the option with breakfast included to save time in the morning."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Café ☕",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Cafe",
+                    definition: "A casual dining option; serves coffee, tea, and light meals.",
+                    example: "I grabbed a quick coffee and a pastry at the hotel's café."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Minibar 🧊",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Minibar",
+                    definition: "A small refrigerator in the room; stocked with drinks and snacks for purchase.",
+                    example: "Don't forget to check the minibar before you check out."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Happy Hour 🍹",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Happy%20Hour",
+                    definition: "A period of time with discounts on drinks; usually at the hotel bar.",
+                    example: "We went to happy hour at the bar to try some new cocktails."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Room Charge 💳",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Room%20Charge",
+                    definition: "The act of adding purchases to your room bill, payable at check-out.",
+                    example: "Please put this meal on my room charge."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "All-Inclusive 🥳",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=All-Inclusive",
+                    definition: "A package including all meals and drinks; a popular option at resorts.",
+                    example: "Our vacation was all-inclusive, so we didn't have to worry about paying for meals."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Vending Machine 🍫",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Vending%20Machine",
+                    definition: "A machine offering snacks and drinks; operates with coins or cards.",
+                    example: "I needed a late-night snack, so I went to the vending machine."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Special Diet Menu 🥗",
+                    image: "https://placehold.co/400x300/e50914/ffffff?text=Special%20Diet",
+                    definition: "A menu catering to specific dietary needs, such as vegetarian, vegan, or gluten-free.",
+                    example: "The restaurant was very accommodating and had a special diet menu for my allergies."
+                },
+                {
+                    category: "Food and Beverage",
+                    term: "Continental Breakfast 🥐",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Continental%20Breakfast",
+                    definition: "A light morning meal typically including pastries, cereal, fruit, and coffee or tea.",
+                    example: "My room rate included a complimentary continental breakfast."
+                },
+                // --- NEW CATEGORIES ADDED HERE ---
+                // At the Reception
+                {
+                    category: "Useful Phrases at the Reception",
+                    term: "Request a new key 🔑",
+                    image: "https://placehold.co/400x300/f1c40f/141414?text=New%20Key",
+                    definition: "A phrase used when you've lost your room key or it's not working.",
+                    example: "Excuse me, could I get a new key card for room 205, please?"
+                },
+                {
+                    category: "Useful Phrases at the Reception",
+                    term: "Ask about amenities 🏊",
+                    image: "https://placehold.co/400x300/f1c40f/141414?text=Amenities",
+                    definition: "A question to find out what services and facilities the hotel offers.",
+                    example: "What time does the swimming pool open? And is there a gym?"
+                },
+                {
+                    category: "Useful Phrases at the Reception",
+                    term: "Inquire about check-out time 🕰️",
+                    image: "https://placehold.co/400x300/f1c40f/141414?text=Check-out%20Time",
+                    definition: "A polite way to confirm the check-out time and procedure.",
+                    example: "I'd like to confirm, what is the latest check-out time tomorrow?"
+                },
+                {
+                    category: "Useful Phrases at the Reception",
+                    term: "Request a taxi/ride 🚕",
+                    image: "https://placehold.co/400x300/f1c40f/141414?text=Taxi%20Please",
+                    definition: "Asking the front desk to arrange transportation for you.",
+                    example: "Could you please call a taxi for me to the airport for 7 AM?"
+                },
+                {
+                    category: "Useful Phrases at the Reception",
+                    term: "Request extra towels 🧖",
+                    image: "https://placehold.co/400x300/f1c40f/141414?text=Extra%20Towels",
+                    definition: "A simple request for more towels to be brought to your room.",
+                    example: "We need a couple of extra towels for our room, please."
+                },
+                // At the Lounge Breakfast
+                {
+                    category: "Useful Phrases for Breakfast",
+                    term: "Ask if breakfast is included 🥐",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Breakfast%20Info",
+                    definition: "A question to find out if the morning meal is part of your room package.",
+                    example: "Good morning! Is breakfast included with my room rate?"
+                },
+                {
+                    category: "Useful Phrases for Breakfast",
+                    term: "Inquire about breakfast location 📍",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Breakfast%20Location",
+                    definition: "Asking for directions to the dining area where breakfast is served.",
+                    example: "Excuse me, could you tell me where the breakfast lounge is?"
+                },
+                {
+                    category: "Useful Phrases for Breakfast",
+                    term: "Request a coffee/drink ☕",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=Coffee%20Request",
+                    definition: "A common request to a waiter or server for a beverage.",
+                    example: "Could I please get a cup of coffee and a glass of orange juice?"
+                },
+                {
+                    category: "Useful Phrases for Breakfast",
+                    term: "Request more food 🥓",
+                    image: "https://placehold.co/400x300/3498db/ffffff?text=More%20Food",
+                    definition: "Asking a server to replenish a specific food item that has run out.",
+                    example: "Could you please bring more bacon to the buffet? It's all gone."
+                },
+                // Reporting Issues in the Hotel
+                {
+                    category: "Reporting Issues",
+                    term: "The A/C isn't working 🌡️",
+                    image: "https://placehold.co/400x300/e74c3c/ffffff?text=Broken%20AC",
+                    definition: "A phrase to report that the air conditioning in your room is not functioning.",
+                    example: "Hello, I'm in room 312. The air conditioning seems to be broken."
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "The TV remote is missing 📺",
+                    image: "https://placehold.co/400x300/e74c3c/ffffff?text=Missing%20Remote",
+                    definition: "To inform the staff that you cannot find the remote control for the television.",
+                    example: "I can't find the TV remote in my room. Could you send one up?"
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "The key card isn't working 🚪",
+                    image: "https://placehold.co/400x300/e74c3c/ffffff?text=Bad%20Keycard",
+                    definition: "A problem where your key card fails to unlock your room door.",
+                    example: "My key card isn't working on the door. It just won't open."
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "The shower is leaking 🚿",
+                    image: "https://placehold.co/400x300/e74c3c/ffffff?text=Leaking%20Shower",
+                    definition: "To report a plumbing issue where water is escaping from the shower.",
+                    example: "I'd like to report a problem. The shower is leaking and making a mess."
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "The lights are out 💡",
+                    image: "https://placehold.co/400x300/e74c3c/ffffff?text=No%20Lights",
+                    definition: "To inform staff that the lights in your room are not working.",
+                    example: "Hi, I think the lights in my room are out. Can someone come and check?"
+                },
+                // New additions for Reporting Issues
+                {
+                    category: "Reporting Issues",
+                    term: "Dirty linen/sheets 🛏️",
+                    image: "https://placehold.co/400x300/8e44ad/ffffff?text=Dirty%20Linen",
+                    definition: "To report that the bedding in your room is not clean.",
+                    example: "The sheets on my bed are dirty. Could housekeeping change them, please?"
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "No water from the tap 🚿",
+                    image: "https://placehold.co/400x300/8e44ad/ffffff?text=No%20Water",
+                    definition: "To report a lack of water supply in the bathroom.",
+                    example: "There's no water coming from the tap in my bathroom. Can someone look at this?"
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "Strange smell 👃",
+                    image: "https://placehold.co/400x300/8e44ad/ffffff?text=Strange%20Smell",
+                    definition: "To report an unpleasant odor in your room.",
+                    example: "I've noticed a strange smell in my room. Could someone please investigate?"
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "Noise from next door 🔊",
+                    image: "https://placehold.co/400x300/8e44ad/ffffff?text=Noise%20Next%20Door",
+                    definition: "To report excessive noise coming from an adjacent room.",
+                    example: "There is a lot of noise coming from the room next door. Could you please address it?"
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "TV not switching on 📺",
+                    image: "https://placehold.co/400x300/8e44ad/ffffff?text=TV%20Broken",
+                    definition: "To report a television that is not functioning properly.",
+                    example: "The television in my room is out of order; it won't switch on."
+                },
+                {
+                    category: "Reporting Issues",
+                    term: "Lost key card 🔑",
+                    image: "https://placehold.co/400x300/8e44ad/ffffff?text=Lost%20Key",
+                    definition: "To report that you have misplaced your room key and need a replacement.",
+                    example: "I seem to have lost my key card. Could I get a new one, please?"
+                }
+            ];
+
+            // Utility function to convert base64 PCM to WAV Blob
+            function base64ToArrayBuffer(base64) {
+                const binaryString = atob(base64);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+
+            function pcmToWav(pcmData, sampleRate) {
+                const numChannels = 1;
+                const sampleBits = 16;
+                const pcmDataLength = pcmData.byteLength;
+                
+                const headerSize = 44;
+                const buffer = new ArrayBuffer(headerSize + pcmDataLength);
+                const view = new DataView(buffer);
+                
+                let offset = 0;
+                
+                function writeString(str) {
+                    for (let i = 0; i < str.length; i++) {
+                        view.setUint8(offset++, str.charCodeAt(i));
+                    }
+                }
+                
+                function writeUint32(val) {
+                    view.setUint32(offset, val, true); // true for little-endian
+                    offset += 4;
+                }
+                
+                function writeUint16(val) {
+                    view.setUint16(offset, val, true); // true for little-endian
+                    offset += 2;
+                }
+                
+                // RIFF header
+                writeString('RIFF');
+                writeUint32(36 + pcmDataLength);
+                writeString('WAVE');
+                
+                // fmt sub-chunk
+                writeString('fmt ');
+                writeUint32(16); // Sub-chunk size
+                writeUint16(1); // Audio format (1 = PCM)
+                writeUint16(numChannels);
+                writeUint32(sampleRate);
+                writeUint32(sampleRate * numChannels * sampleBits / 8); // Byte rate
+                writeUint16(numChannels * sampleBits / 8); // Block align
+                writeUint16(sampleBits);
+                
+                // data sub-chunk
+                writeString('data');
+                writeUint32(pcmDataLength);
+                
+                // Copy the PCM data
+                const pcmBytes = new Uint8Array(pcmData.buffer);
+                for (let i = 0; i < pcmDataLength; i++) {
+                    view.setUint8(offset++, pcmBytes[i]);
+                }
+                
+                return new Blob([buffer], { type: 'audio/wav' });
+            }
+
+            /**
+             * Makes a text-to-speech API call with exponential backoff for retries.
+             * @param {string} text The text to be converted to speech.
+             * @param {HTMLElement} button The button element to show loading state.
+             */
+            async function textToSpeech(text, button) {
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<div class="spinner"></div>';
+                button.disabled = true;
+
+                try {
+                    // Sanitize text to remove emojis and other non-alphanumeric characters
+                    // Use a regular expression with the 'u' flag for Unicode properties to correctly handle emojis.
+                    const sanitizedText = text.replace(/[^\p{L}\p{N}\s]/gu, '').trim();
+                    if (!sanitizedText) {
+                        console.error('Sanitized text is empty, cannot generate speech.');
+                        return;
+                    }
+
+                    let delay = 1000;
+                    const maxRetries = 3;
+
+                    for (let i = 0; i < maxRetries; i++) {
+                        try {
+                            const payload = {
+                                contents: [{
+                                    parts: [{ text: `Say in a casual tone: ${sanitizedText}` }]
+                                }],
+                                generationConfig: {
+                                    responseModalities: ["AUDIO"],
+                                    speechConfig: {
+                                        voiceConfig: {
+                                            prebuiltVoiceConfig: { voiceName: "Kore" }
+                                        }
+                                    }
+                                },
+                                model: "gemini-2.5-flash-preview-tts"
+                            };
+        
+                            const apiKey = "";
+                            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+        
+                            const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+        
+                            if (!response.ok) {
+                                throw new Error(`API call failed with status: ${response.status}`);
+                            }
+        
+                            const result = await response.json();
+                            const part = result?.candidates?.[0]?.content?.parts?.[0];
+                            const audioData = part?.inlineData?.data;
+                            const mimeType = part?.inlineData?.mimeType;
+        
+                            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                                const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+                                const pcmData = base64ToArrayBuffer(audioData);
+                                const pcm16 = new Int16Array(pcmData);
+                                const wavBlob = pcmToWav(pcm16, sampleRate);
+                                const audioUrl = URL.createObjectURL(wavBlob);
+                                const audio = new Audio(audioUrl);
+                                audio.play();
+                                return; // Exit loop on success
+                            } else {
+                                console.error('Audio data not found in response:', result);
+                                throw new Error('Invalid API response structure or missing audio data.');
+                            }
+                        } catch (innerError) {
+                            console.error(`Attempt ${i + 1} failed:`, innerError);
+                            if (i < maxRetries - 1) {
+                                // Wait before retrying with exponential backoff
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                delay *= 2; 
+                            } else {
+                                throw new Error('Max retries exceeded.');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error during TTS API call:', error);
+                } finally {
+                    // Always restore the button state
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                }
+            }
+
+
+            const vocabularyGrid = document.getElementById('vocabulary-grid');
+            const searchBar = document.getElementById('search-bar');
+
+            function createCard(word) {
+                const card = document.createElement('div');
+                card.className = 'card rounded-2xl shadow-xl';
+                card.innerHTML = `
+                    <div class="card-front">
+                        <button class="pronounce-btn">🔊</button>
+                        <img src="${word.image}" alt="${word.term} icon" class="mb-4 rounded-lg">
+                        <h2 class="text-2xl font-bold uppercase text-white">${word.term}</h2>
+                    </div>
+                    <div class="card-back">
+                        <p class="text-lg font-light text-white">
+                            <strong>Definition:</strong> ${word.definition}
+                        </p>
+                        <p class="text-lg font-light text-white">
+                            <strong>Example:</strong> "${word.example}"
+                        </p>
+                    </div>
+                `;
+                
+                const pronounceBtn = card.querySelector('.pronounce-btn');
+                
+                pronounceBtn.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevents the card from revealing the definition
+                    textToSpeech(word.term, pronounceBtn);
+                });
+
+                card.addEventListener('click', () => {
+                    card.classList.toggle('is-active');
+                });
+
+                return card;
+            }
+
+            function renderCards(data) {
+                vocabularyGrid.innerHTML = ''; // Clear previous cards
+                const categories = [...new Set(data.map(item => item.category))];
+                
+                categories.forEach(category => {
+                    const categorySection = document.createElement('section');
+                    categorySection.className = 'mb-12';
+
+                    const categoryTitle = document.createElement('h2');
+                    categoryTitle.className = 'category-title';
+                    categoryTitle.textContent = category;
+                    categorySection.appendChild(categoryTitle);
+
+                    const gridContainer = document.createElement('div');
+                    gridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8';
+                    categorySection.appendChild(gridContainer);
+                    
+                    const filteredWords = data.filter(word => word.category === category);
+                    filteredWords.forEach(word => {
+                        const newCard = createCard(word);
+                        gridContainer.appendChild(newCard);
+                    });
+
+                    vocabularyGrid.appendChild(categorySection);
+                });
+            }
+
+            // Initial render
+            renderCards(vocabularyData);
+
+            // Add event listener for search bar
+            searchBar.addEventListener('keyup', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredData = vocabularyData.filter(word =>
+                    word.term.toLowerCase().includes(searchTerm) ||
+                    word.definition.toLowerCase().includes(searchTerm) ||
+                    word.example.toLowerCase().includes(searchTerm)
+                );
+                renderCards(filteredData);
+            });
+        });
+
+        // --- INTERACTIVE EXERCISES JAVASCRIPT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Drag and Drop Exercise Logic
+            const dragItemsData = [
+                { id: 'drag-1', term: 'Wi-Fi 📶', definition: 'Wireless internet connection; usually provided for free or at a cost.' },
+                { id: 'drag-2', term: 'Concierge 🗺️', definition: 'Hotel staff that assists guests with various tasks, such as booking tours, making reservations, or providing local information.' },
+                { id: 'drag-3', term: 'Check-in 📅', definition: 'The process of arriving at a hotel, registering, and getting your room key.' },
+                { id: 'drag-4', term: 'No-Show 🚫', definition: 'Failing to arrive for a reservation without canceling; often results in a fee.' },
+                { id: 'drag-5', term: 'Lobby 🛋️', definition: 'The large public area near the main entrance of the hotel.' },
+                { id: 'drag-6', term: 'Pet-friendly 🐾', definition: 'A hotel policy that allows guests to bring their pets for a stay, sometimes with an extra fee.' },
+                // New exercises added here
+                { id: 'drag-7', term: 'Late Check-out ⏰', definition: 'Staying in the room past the standard check-out time (often at an extra cost).' },
+                { id: 'drag-8', term: 'Full Board 🍽️', definition: 'A rate that includes accommodation and all meals (breakfast, lunch, and dinner).' },
+                { id: 'drag-9', term: 'Bellman 🔔', definition: 'A staff member who helps with the luggage; offers assistance upon arrival or departure.' },
+                { id: 'drag-10', term: 'Shuttle Service 🚌', definition: 'Transportation provided by the hotel; usually to nearby attractions or the airport.' },
+                { id: 'drag-11', term: 'Room Service 🍔', definition: 'Meals or other services delivered to the room; available at specific hours.' },
+                { id: 'drag-12', term: 'Amenities ✨', definition: 'Services or facilities provided by the hotel, such as a gym, pool, or complimentary breakfast.' },
+                { id: 'drag-13', term: 'Ensuite 🛁', definition: 'A hotel room with a private bathroom attached directly to the room.' },
+                { id: 'drag-14', term: 'Parking Lot 🅿️', definition: 'An area provided for guests to park their vehicles.' },
+                { id: 'drag-15', term: 'Sea view 🌊', definition: 'A room with a window or balcony that overlooks the ocean.' },
+                { id: 'drag-16', term: 'Breakfast Included 🥐', definition: 'A booking rate where breakfast is provided with the room; usually a buffet or set menu.' },
+            ];
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            const dragItemsContainer = document.getElementById('drag-items-container');
+            const dropZonesContainer = document.getElementById('drop-zones-container');
+            const checkDragDropBtn = document.getElementById('check-drag-drop');
+            const resetDragDropBtn = document.getElementById('reset-drag-drop');
+
+            let shuffledTerms = [...dragItemsData];
+            let shuffledDefinitions = [...dragItemsData];
+
+            function renderDragDrop() {
+                shuffleArray(shuffledTerms);
+                shuffleArray(shuffledDefinitions);
+
+                dragItemsContainer.innerHTML = '';
+                shuffledTerms.forEach(item => {
+                    const dragItem = document.createElement('div');
+                    dragItem.id = item.id;
+                    dragItem.textContent = item.term;
+                    dragItem.className = 'drag-item p-4 rounded-lg shadow-md w-full text-center text-white font-semibold cursor-grab';
+                    dragItem.draggable = true;
+                    dragItem.dataset.term = item.term;
+                    dragItemsContainer.appendChild(dragItem);
+                });
+
+                dropZonesContainer.innerHTML = '';
+                shuffledDefinitions.forEach(item => {
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone p-4 rounded-lg w-full flex items-center justify-center text-center text-gray-400';
+                    dropZone.textContent = item.definition;
+                    dropZone.dataset.correctTerm = item.term;
+                    dropZonesContainer.appendChild(dropZone);
+                });
+
+                document.querySelectorAll('.drag-item').forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', e.target.id);
+                    });
+                });
+
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    zone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                    });
+
+                    zone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const data = e.dataTransfer.getData('text/plain');
+                        const draggable = document.getElementById(data);
+                        if (e.target.classList.contains('drop-zone') && !e.target.querySelector('.drag-item')) {
+                            e.target.appendChild(draggable);
+                            e.target.classList.remove('dashed-border');
+                        }
+                    });
+                });
+            }
+
+            checkDragDropBtn.addEventListener('click', () => {
+                let allCorrect = true;
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    const droppedItem = zone.querySelector('.drag-item');
+                    if (droppedItem) {
+                        const droppedTerm = droppedItem.dataset.term;
+                        const correctTerm = zone.dataset.correctTerm;
+                        if (droppedTerm.trim() === correctTerm.trim()) {
+                            droppedItem.classList.remove('incorrect');
+                            droppedItem.classList.add('correct');
+                        } else {
+                            droppedItem.classList.remove('correct');
+                            droppedItem.classList.add('incorrect');
+                            allCorrect = false;
+                        }
+                    } else {
+                        allCorrect = false;
+                    }
+                });
+                if (allCorrect) {
+                    alert('Congratulations! All answers are correct!');
+                } else {
+                    alert('Some answers are incorrect. Try again!');
+                }
+            });
+
+            resetDragDropBtn.addEventListener('click', () => {
+                renderDragDrop();
+            });
+
+            renderDragDrop();
+
+            // Fill-in-the-Blank Exercise Logic
+            const fillInSentences = [
+                {
+                    sentence: "We had a lovely dinner at the hotel's main __________.",
+                    correctAnswer: "Restaurant 🍽️",
+                    options: ["Spa 💆", "Restaurant 🍽️", "Bellman 🔔"]
+                },
+                {
+                    sentence: "The elevator is unfortunately __________, so you'll have to take the stairs.",
+                    correctAnswer: "Out of Order 🔧",
+                    options: ["Out of Order 🔧", "Full Board 🍽️", "Room Service 🍔"]
+                },
+                {
+                    sentence: "I requested a __________ for 6 AM so I don't miss my flight.",
+                    correctAnswer: "Wake-up Call ⏰",
+                    options: ["Concierge 🗺️", "Wake-up Call ⏰", "Late Check-out ⏰"]
+                },
+                {
+                    sentence: "The hotel offers a complimentary __________ to the airport every hour.",
+                    correctAnswer: "Shuttle Service 🚌",
+                    options: ["Shuttle Service 🚌", "Valet Parking 🚗", "Laundry 🧺"]
+                },
+                {
+                    sentence: "My key card isn't working on the door, so I'd like to report a __________.",
+                    correctAnswer: "Complaint 🗣️",
+                    options: ["Complaint 🗣️", "No-Show 🚫", "Reservation ✍️"]
+                },
+                {
+                    sentence: "My room rate included a complimentary __________.",
+                    correctAnswer: "Continental Breakfast 🥐",
+                    options: ["Full Board 🍽️", "Room Service 🍔", "Continental Breakfast 🥐"]
+                },
+                {
+                    sentence: "We waited for our friends in the hotel __________.",
+                    correctAnswer: "Lobby 🛋️",
+                    options: ["Lobby 🛋️", "Spa 💆", "Business Center 💼"]
+                },
+            ];
+
+            const fillInContainer = document.getElementById('fill-in-container');
+            const checkFillInBtn = document.getElementById('check-fill-in');
+            const resetFillInBtn = document.getElementById('reset-fill-in');
+
+            function renderFillIn() {
+                fillInContainer.innerHTML = '';
+                shuffleArray(fillInSentences);
+
+                fillInSentences.forEach((q, index) => {
+                    const sentenceDiv = document.createElement('div');
+                    sentenceDiv.className = 'flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 p-4 rounded-lg bg-gray-900';
+
+                    const sentenceText = document.createElement('p');
+                    sentenceText.className = 'text-lg text-white flex-1';
+                    sentenceText.innerHTML = q.sentence.replace('__________', `<span id="placeholder-${index}" class="text-red-500 font-bold">__________</span>`);
+
+                    const select = document.createElement('select');
+                    select.id = `select-${index}`;
+                    select.className = 'p-2 rounded-lg bg-gray-700 text-white border-2 border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600';
+
+                    const defaultOption = document.createElement('option');
+                    defaultOption.textContent = 'Select an answer';
+                    defaultOption.value = '';
+                    select.appendChild(defaultOption);
+
+                    shuffleArray(q.options);
+                    q.options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option;
+                        opt.textContent = option;
+                        select.appendChild(opt);
+                    });
+
+                    sentenceDiv.appendChild(sentenceText);
+                    sentenceDiv.appendChild(select);
+                    fillInContainer.appendChild(sentenceDiv);
+                });
+            }
+
+            checkFillInBtn.addEventListener('click', () => {
+                let allCorrect = true;
+                fillInSentences.forEach((q, index) => {
+                    const select = document.getElementById(`select-${index}`);
+                    const placeholder = document.getElementById(`placeholder-${index}`);
+                    if (select.value === q.correctAnswer) {
+                        placeholder.textContent = q.correctAnswer;
+                        placeholder.classList.remove('text-red-500');
+                        placeholder.classList.add('text-green-500');
+                    } else {
+                        placeholder.textContent = select.value || 'Incorrect';
+                        placeholder.classList.remove('text-green-500');
+                        placeholder.classList.add('text-red-500');
+                        allCorrect = false;
+                    }
+                });
+                if (allCorrect) {
+                    alert('Great job! All sentences are correct!');
+                } else {
+                    alert('Some answers are incorrect. Try again!');
+                }
+            });
+
+            resetFillInBtn.addEventListener('click', () => {
+                renderFillIn();
+            });
+
+            renderFillIn();
+        });
+    </script>
+</body>
+</html>
